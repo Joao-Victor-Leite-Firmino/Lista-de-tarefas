@@ -1,55 +1,29 @@
-// Arquivo: App.tsx
+import React from "react";
+import { FlatList, Text, Box } from 'native-base'; // Importando Box para facilitar o estilo
 
-import React, { useState } from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
-import CadastrarTarefa from './Components/CadastrarTarefa';
-import ListaTarefas from './Components/ListaTarefas';
-import Tarefa from './Components/Tarefa';
-
-interface TarefaItem {
-  id: number;
-  tarefa: string;
-  concluida: boolean;
+interface ListaTarefasProps {
+  tarefas: string[];
 }
 
-export default function App() {
-  const [tarefas, setTarefas] = useState<TarefaItem[]>([]);
-
-  const adicionarTarefa = (novaTarefa: string) => {
-    setTarefas([...tarefas, { id: Date.now(), tarefa: novaTarefa, concluida: false }]);
-  };
-
-  const removerTarefa = (id: number) => {
-    setTarefas(tarefas.filter(tarefa => tarefa.id !== id));
-  };
-
-  const alternarConclusaoTarefa = (id: number) => {
-    setTarefas(tarefas.map(tarefa =>
-      tarefa.id === id ? { ...tarefa, concluida: !tarefa.concluida } : tarefa
-    ));
-  };
-
+const ListaTarefas: React.FC<ListaTarefasProps> = ({ tarefas }) => {
   return (
-    <SafeAreaView style={styles.container}>
-      <CadastrarTarefa onAdicionarTarefa={adicionarTarefa} />
-      <ListaTarefas tarefas={tarefas} />
-      {tarefas.map(tarefa => (
-        <Tarefa
-          key={tarefa.id}
-          tarefa={tarefa}
-          onDelete={() => removerTarefa(tarefa.id)}
-          onToggle={() => alternarConclusaoTarefa(tarefa.id)}
-        />
-      ))}
-    </SafeAreaView>
+    <FlatList
+      data={tarefas}
+      renderItem={({ item }) => (
+        <Box
+          bg="gray.200" // Define a cor de fundo como cinza
+          p={4} // Adiciona um padding interno de 4
+          alignItems="flex-start" // Alinha o texto à esquerda
+          my={2} // Adiciona uma margem vertical de 2
+          mx={2} // Adiciona uma margem horizontal de 2
+        >
+          <Text>{item}</Text>
+        </Box>
+      )}
+      keyExtractor={(item, index) => index.toString()}
+      contentContainerStyle={{ flexGrow: 1 }} // Removido o estilo de alinhamento
+    />
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingTop: 50,
-  },
-});
+export default ListaTarefas;

@@ -1,37 +1,29 @@
-// Arquivo: ListaTarefas.tsx
-
-import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import React from "react";
+import { FlatList, Text, Box } from 'native-base'; // Importando Box para facilitar o estilo
 
 interface ListaTarefasProps {
-  tarefas: Array<{ id: number; tarefa: string; concluida: boolean }>;
+  tarefas: string[];
 }
 
 const ListaTarefas: React.FC<ListaTarefasProps> = ({ tarefas }) => {
   return (
-    <View style={styles.containerLista}>
-      <FlatList
-        data={tarefas}
-        renderItem={({ item }) => (
-          <View style={styles.tarefa}>
-            <Text>{item.tarefa}</Text>
-          </View>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-      />
-    </View>
+    <FlatList
+      data={tarefas}
+      renderItem={({ item }) => (
+        <Box
+          bg="gray.200" // Define a cor de fundo como cinza
+          p={4} // Adiciona um padding interno de 4
+          alignItems="flex-start" // Alinha o texto à esquerda
+          my={2} // Adiciona uma margem vertical de 2
+          mx={2} // Adiciona uma margem horizontal de 2
+        >
+          <Text>{item}</Text>
+        </Box>
+      )}
+      keyExtractor={(item, index) => index.toString()}
+      contentContainerStyle={{ flexGrow: 1 }} // Removido o estilo de alinhamento
+    />
   );
 };
-
-const styles = StyleSheet.create({
-  containerLista: {
-    flex: 1,
-  },
-  tarefa: {
-    padding: 10,
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-  },
-});
 
 export default ListaTarefas;
