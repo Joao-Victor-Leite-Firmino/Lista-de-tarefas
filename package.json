@@ -11,8 +11,8 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
     "@react-native-community/async-storage": "^1.12.1",
-    "@react-navigation/native": "^6.1.17",
-    "@react-navigation/native-stack": "^6.9.26",
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/native-stack": "^6.11.0",
     "expo": "~50.0.14",
     "expo-status-bar": "~1.11.1",
     "express": "^4.19.2",

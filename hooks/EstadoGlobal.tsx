@@ -1,16 +1,16 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 // Interface que define a estrutura de uma tarefa
 interface Tarefa {
   id: number;
-  titulo: string;
+  tarefa: string;
 }
 
 // Interface que define o contexto global de estado
 interface ContextoEstadoGlobal {
   tarefas: Tarefa[];
-  adicionarTarefa: (titulo: string) => void;
+  adicionarTarefa: (tarefa: string) => void;
   editarTarefa: (id: number, novoTitulo: string) => void;
   excluirTarefa: (id: number) => void;
 }
@@ -18,9 +18,9 @@ interface ContextoEstadoGlobal {
 // Cria o contexto global de estado
 const ContextoEstadoGlobal = createContext<ContextoEstadoGlobal>({
   tarefas: [],
-  adicionarTarefa: () => {},
-  editarTarefa: () => {},
-  excluirTarefa: () => {},
+  adicionarTarefa: () => { },
+  editarTarefa: () => { },
+  excluirTarefa: () => { },
 });
 
 // Hook para acessar o contexto global de estado
@@ -31,82 +31,117 @@ export const ProvedorEstadoGlobal: React.FC<{ children: React.ReactNode }> = ({ 
   // Define o estado inicial das tarefas
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
 
-  // Flag para controlar a recarga da tela
-  const [isRecarregandoTela, setIsRecarregandoTela] = useState(true);
+  // Função para carregar as tarefas do backend
+  const carregarTarefas = async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await fetch('http://localhost:3000/tarefas', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Não foi possível carregar as tarefas');
+      }
+
+      const data = await response.json();
+      setTarefas(data);
+    } catch (error) {
+      console.error('Erro ao carregar as tarefas:', error);
+    }
+  };
 
   // Função para adicionar uma nova tarefa
-  const adicionarTarefa = (titulo: string) => {
-    // Cria uma nova tarefa com um ID único
-    const novaTarefa: Tarefa = {
-      id: Date.now(),
-      titulo,
-    };
+  const adicionarTarefa = async (tarefa: string) => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await fetch('http://localhost:3000/tarefas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tarefa: tarefa }),
+      });
 
-    // Atualiza o estado das tarefas com a nova tarefa
-    setTarefas([...tarefas, novaTarefa]);
+      if (!response.ok) {
+        throw new Error('Não foi possível adicionar a tarefa');
+      }
 
-    // Salva as tarefas no AsyncStorage
-    salvarTarefas(tarefas);
+      const data = await response.json();
+      console.log('Nova tarefa adicionada:', data);
+
+      // Atualiza o estado das tarefas com a nova tarefa
+      setTarefas([...tarefas, data]);
+
+    } catch (error) {
+      console.error('Erro ao adicionar a tarefa:', error);
+    }
   };
 
   // Função para editar o título de uma tarefa
-  const editarTarefa = (id: number, novoTitulo: string) => {
-    // Cria uma cópia das tarefas
-    const novasTarefas = tarefas.map(tarefa =>
-      tarefa.id === id ? { ...tarefa, titulo: novoTitulo } : tarefa
-    );
+  const editarTarefa = async (id: number, novoTitulo: string) => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:3000/tarefas/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tarefa: novoTitulo }),
+      });
 
-    // Atualiza o estado das tarefas com as novas tarefas
-    setTarefas(novasTarefas);
+      if (!response.ok) {
+        throw new Error('Não foi possível editar a tarefa');
+      }
 
-    // Salva as tarefas no AsyncStorage
-    salvarTarefas(novasTarefas);
+      console.log('Tarefa editada com sucesso');
+
+      // Atualiza o estado das tarefas após a edição
+      const novasTarefas = tarefas.map(tarefa =>
+        tarefa.id === id ? { ...tarefa, tarefa: novoTitulo } : tarefa
+      );
+      setTarefas(novasTarefas);
+
+    } catch (error) {
+      console.error('Erro ao editar a tarefa:', error);
+    }
   };
 
   // Função para excluir uma tarefa
-  const excluirTarefa = (id: number) => {
-    // Cria uma cópia das tarefas
-    const novasTarefas = tarefas.filter(tarefa => tarefa.id !== id);
+  const excluirTarefa = async (id: number) => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:3000/tarefas/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
-    // Atualiza o estado das tarefas com as novas tarefas
-    setTarefas(novasTarefas);
-
-    // Salva as tarefas no AsyncStorage
-    salvarTarefas(novasTarefas);
-  };
-
-  // Carrega as tarefas do AsyncStorage na inicialização
-  useEffect(() => {
-    const carregarTarefas = async () => {
-      try {
-        const tarefasArmazenadas = await AsyncStorage.getItem('tarefas');
-        if (tarefasArmazenadas) {
-          setTarefas(JSON.parse(tarefasArmazenadas));
-        }
-      } catch (error) {
-        console.error(error);
+      if (!response.ok) {
+        throw new Error('Não foi possível excluir a tarefa');
       }
 
-      setIsRecarregandoTela(false); // Define a tela como carregada
-    };
-    carregarTarefas();
-  }, []);
+      console.log('Tarefa excluída com sucesso');
 
-  // Salva as tarefas no AsyncStorage antes da recarga da tela
-  useEffect(() => {
-    salvarTarefas(tarefas);
-  }, [tarefas]);
+      // Atualiza o estado das tarefas após a exclusão
+      const novasTarefas = tarefas.filter(tarefa => tarefa.id !== id);
+      setTarefas(novasTarefas);
 
-  // Função para salvar as tarefas no AsyncStorage
-  const salvarTarefas = async (tarefas: Tarefa[]) => {
-    if (!isRecarregandoTela) {
-      try {
-        await AsyncStorage.setItem('tarefas', JSON.stringify(tarefas));
-      } catch (error) {
-        console.error(error);
-      }
+    } catch (error) {
+      console.error('Erro ao excluir a tarefa:', error);
     }
   };
+
+  // Carrega as tarefas do backend na inicialização
+  useEffect(() => {
+    carregarTarefas();
+  }, []);
 
   // Retorna o contexto global de estado com as funções para manipular as tarefas
   return (
