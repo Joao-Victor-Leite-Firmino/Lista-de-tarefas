@@ -1,6 +1,6 @@
-import React from "react";
-import { FlatList, Text, Box, IconButton, Input } from 'native-base';
 import { Ionicons } from '@expo/vector-icons';
+import { Box, FlatList, IconButton, Input, Text } from 'native-base';
+import React from "react";
 import { useEstadoGlobal } from "../hooks/EstadoGlobal";
 
 // Definindo as propriedades que o componente TarefaItem irá receber
@@ -13,7 +13,7 @@ interface TarefaItemProps {
 const TarefaItem: React.FC<TarefaItemProps> = ({ id, titulo }) => {
   // Obtendo as funções editarTarefa e excluirTarefa do contexto global
   const { editarTarefa, excluirTarefa } = useEstadoGlobal();
-  
+
   // Definindo os estados locais para controlar a edição do título da tarefa
   const [editando, setEditando] = React.useState(false);
   const [novoTitulo, setNovoTitulo] = React.useState(titulo);
@@ -68,7 +68,7 @@ const ListaTarefas: React.FC = () => {
   return (
     <FlatList
       data={tarefas} // Definindo os dados da lista como a lista de tarefas obtida do contexto global
-      renderItem={({ item }) => <TarefaItem id={item.id} titulo={item.titulo} />} // Renderizando cada item da lista utilizando o componente TarefaItem
+      renderItem={({ item }) => <TarefaItem id={item.id} titulo={item.tarefa} />} // Renderizando cada item da lista utilizando o componente TarefaItem
       keyExtractor={(item) => item.id.toString()} // Extraindo chaves únicas para cada item da lista
       contentContainerStyle={{ flexGrow: 1 }} // Definindo o estilo para que a lista ocupe todo o espaço disponível
     />
