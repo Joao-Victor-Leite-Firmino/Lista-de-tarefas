@@ -50,7 +50,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             style={styles.background}
         >
             <View style={styles.container}>
-                <Text style={styles.title}>Lista de tarefas</Text>
+                <Text style={styles.title}>Lista de Tarefas</Text>
                 {errorMessage && <Text style={styles.error}>{errorMessage}</Text>}
                 <TextInput
                     style={styles.input}
