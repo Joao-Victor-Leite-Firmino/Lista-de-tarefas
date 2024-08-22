@@ -46,7 +46,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
     return (
         <ImageBackground
-            source={require('../assets/images/coringa.jpg')}
+            source={require('../assets/images/montanha.jpeg')}
             style={styles.background}
         >
             <View style={styles.container}>
